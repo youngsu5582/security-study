@@ -1,3 +1,4 @@
 rootProject.name = 'security-study'
 
 include 'security-study-form'
+include 'security-study-httpbasic'
