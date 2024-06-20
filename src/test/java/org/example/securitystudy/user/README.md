@@ -56,3 +56,15 @@ interface
 - Spring Security가 `InMemoryUserDetailsManager` 와 `InMemoryUserDetailsManager` 를 제공해준다.
 
 ( 이들을 사용하지 않으려면, 직접 UserDetailsService or UserDetailsManager 구현후 Bean 등록해야 한다. )
+
+### SecurityContext
+
+Authenction을 가지고 있는 객체
+- setter/getter 를 가진다
+
+### SecurityContextHolder
+
+SecurityContext 들을 관리하는 객체
+ThreadLocal 을 통해 스레드마다 SecurityContext 를 담당한다.
+
+
