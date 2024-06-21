@@ -11,10 +11,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import java.time.Duration;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 class SecurityContextHolderTest {
     @Test
@@ -24,13 +26,20 @@ class SecurityContextHolderTest {
         securityContext.setAuthentication(authentication);
         assertThat(securityContext.getAuthentication()).isEqualTo(authentication);
     }
+
     @Test
-    void SecurityContextHolder는_ThreadLocal을_사용해_각_스레드마다_다른_값을_가진다(){
+    void SecurityContextHolder는_ThreadLocal을_사용해_각_스레드마다_다른_값을_가진다() {
         SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_THREADLOCAL);
 
         UserDetailsService userDetailsService = new InMemoryUserDetailsManager(
-                User.withUsername("user1").password("password").roles("USER").build(),
-                User.withUsername("user2").password("password").roles("USER").build()
+                User.withUsername("user1")
+                        .password("password")
+                        .roles("USER")
+                        .build(),
+                User.withUsername("user2")
+                        .password("password")
+                        .roles("USER")
+                        .build()
         );
 
         ExecutorService executorService = Executors.newFixedThreadPool(2);
@@ -41,14 +50,12 @@ class SecurityContextHolderTest {
             context1.setAuthentication(new UsernamePasswordAuthenticationToken(user1.getUsername(), user1.getPassword(), user1.getAuthorities()));
             SecurityContextHolder.setContext(context1);
 
-            // Simulate some processing
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
 
-            assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).isEqualTo(user1.getUsername());
+            await().atMost(Duration.ofSeconds(2))
+                    .until(() -> SecurityContextHolder.getContext()
+                            .getAuthentication()
+                            .getPrincipal()
+                            .equals(user1.getUsername()));
         };
 
         Runnable task2 = () -> {
@@ -57,13 +64,11 @@ class SecurityContextHolderTest {
             context2.setAuthentication(new UsernamePasswordAuthenticationToken(user2.getUsername(), user2.getPassword(), user2.getAuthorities()));
             SecurityContextHolder.setContext(context2);
 
-            // Simulate some processing
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            assertThat(SecurityContextHolder.getContext().getAuthentication().getPrincipal()).isEqualTo(user2.getUsername());
+            await().atMost(Duration.ofSeconds(2))
+                    .until(() -> SecurityContextHolder.getContext()
+                            .getAuthentication()
+                            .getPrincipal()
+                            .equals(user2.getUsername()));
         };
 
         executorService.submit(task1);

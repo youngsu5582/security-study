@@ -48,3 +48,11 @@ protected Authentication createSuccessAuthentication(Object principal, Authentic
 
 HttpRequest 에서 값을 추출해 EntityManager 를 통해 인증을 진행한다.
 ( 추출하는 부분 제외, EntityManager 와 동일 )
+
+### AuthenticationEntryPoint
+
+예외시 어떻게 응답을 할지 처리하는 클래스
+( ControllerAdvice 와 유사함 )
+
+Filter 는 Spring으로 들어오기전 Tomcat 단 처리 ( ControllerAdvice 를 사용 불가 )
+- ObjectMapper 를 통해 값을 변환 or 직접 작성
