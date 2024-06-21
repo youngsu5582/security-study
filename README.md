@@ -19,3 +19,45 @@
 
 => 이런것들을 위해 PasswordEncoder interface 를 제공
 ( 구현한 bcrypt,scrypt,argon2 등등 )
+
+---
+
+## Filter
+
+```java
+public interface Filter {
+    default void init(FilterConfig filterConfig) throws ServletException {
+    }
+
+    void doFilter(ServletRequest var1, ServletResponse var2, FilterChain var3) throws IOException, ServletException;
+
+    default void destroy() {
+    }
+}
+```
+- 인터페이스로 명세
+- DispatcherServlet이 요청 받기 전 먼저 받음
+
+### GenericFilterBean
+```java
+public abstract class GenericFilterBean implements Filter, BeanNameAware, EnvironmentAware,
+        EnvironmentCapable, ServletContextAware, InitializingBean, DisposableBean {
+    //...
+}
+```
+- Filter 를 확장한 추상 클래스
+- Spring 설정 정보를 가지고 있음
+
+### OncePerRequestFilter
+
+한 요청당 한번만 실행되는 것을 보장한다.
+(Redirect 하며 한번더 필터를 수행하는 것을 방지)
+
+```java
+protected abstract void doFilterInternal(
+        HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+        throws ServletException, IOException;
+```
+- ServletRequest 가 아닌 HttpServlet 으로 받는다.
+
+=> 둘다 Filter 등록해준다.
